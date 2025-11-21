@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Adquirência — Age Fibra</title>
+  <style>
+    :root {
+      --bg: #fff7ed;
+      --card: #ffffff;
+      --brand: #ff7a00;
+      --brand-dark: #e06b00;
+      --muted: #7a4b00;
+      --accent-contrast: #ffffff;
+      --surface-2: #f7f5f2;
+      --success: #0b3f88;
+      --danger: #8b0d0d;
+    }
+    * { box-sizing: border-box; font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; }
+    html,body { height:100%; }
+    body { margin:0; background: linear-gradient(180deg,var(--bg),#fff); display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
+
+    .card { width:100%; max-width:820px; background:var(--card); border-radius:14px; padding:22px; box-shadow:0 10px 30px rgba(20,20,40,0.08); border-left:6px solid rgba(255,122,0,0.06); }
+    .header { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    #logo { height:auto; max-width:120px; width:100%; object-fit:contain; }
+    h1 { margin:0; font-size:20px; color:#111827; }
+    .muted-sm { font-size:13px; color:var(--muted); }
+    p.lead { margin:8px 0 18px; color:var(--muted); }
+
+    form { display:grid; gap:12px; }
+    label { font-size:13px; color:#111827; display:block; margin-bottom:6px; }
+    input[type=text], input[type=tel], input[type=email], select, input[type=file] { width:100%; padding:12px 14px; border:1px solid #e6e9ef; border-radius:10px; font-size:14px; background:white; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .full { grid-column: 1 / -1; }
+
+    .actions { display:flex; gap:12px; align-items:center; margin-top:6px; }
+    button { background: linear-gradient(180deg,var(--brand),var(--brand-dark)); color: var(--accent-contrast); border:0; padding:12px 16px; border-radius:10px; cursor:pointer; font-weight:600; box-shadow:0 6px 18px rgba(255,122,0,0.18); transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease; display:inline-flex; align-items:center; gap:8px; justify-content:center; }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+    button.secondary { background:transparent; color:var(--brand); border:1px solid rgba(255,122,0,0.14); box-shadow:none; font-weight:600; padding:10px 14px; }
+    button[disabled] { opacity:0.6; cursor:not-allowed; transform:none; }
+
+    .result { margin-top:12px; padding:12px; border-radius:10px; background:#f3f7ff; color:var(--success); font-weight:600; }
+    .error { background:#fff5f5; color:var(--danger); font-weight:600; }
+    small.hint { color:var(--muted); display:block; margin-top:6px; }
+    .footnote { font-size:12px; color:#6b3a00; margin-top:8px; }
+
+    .site-footer { position:fixed; left:50%; transform:translateX(-50%); bottom:12px; font-size:11px; color:rgba(122,75,0,0.85); opacity:0.95; background:transparent; padding:6px 10px; border-radius:8px; z-index:40; pointer-events:auto; }
+    .site-footer a{ color:var(--brand); text-decoration:none; font-weight:600; }
+
+    /* WhatsApp floating button */
+    .wa-float { position: fixed; right: 16px; bottom: 80px; z-index: 70; display:flex; align-items:center; gap:10px; background: linear-gradient(180deg,var(--brand),var(--brand-dark)); color:white; padding:10px 14px; border-radius:999px; box-shadow:0 10px 24px rgba(0,0,0,0.12); cursor:pointer; transition:all .28s cubic-bezier(.2,.9,.2,1); user-select:none; -webkit-tap-highlight-color: transparent; }
+    .wa-float svg { width:20px; height:20px; display:block; }
+    .wa-float .wa-label { font-weight:700; font-size:14px; margin-left:2px; }
+    .wa-float.collapsed { width:44px; height:44px; padding:6px; border-radius:50%; gap:0; overflow:hidden; }
+    .wa-float.collapsed .wa-label { opacity:0; transform:translateX(6px); pointer-events:none; }
+    .wa-arrow { display:none; }
+    .wa-float.collapsed .wa-arrow { display:block; width:18px; height:18px; }
+
+    @media (max-width:560px){
+      .row{grid-template-columns:1fr;} body { padding:14px; align-items:flex-start; }
+      .card { margin:8px; padding:18px; border-radius:12px; box-shadow:0 8px 24px rgba(20,20,40,0.06); max-width:100%; overflow:visible; margin-top:18px; }
+      h1 { font-size:18px; }
+      .wa-float { right:12px; bottom:92px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="header">
+      <div class="brand">
+        <img id="logo" src="logo.png" alt="Age Fibra">
+        <div>
+          <h1>Adquirência — Age Fibra</h1>
+          <div class="muted-sm">Conectando você ao melhor da internet</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="lead">Preencha os dados abaixo para formalizar sua adesão. Campos marcados com * são obrigatórios.</p>
+
+    <!-- Formulário -->
+    <form id="interestForm" autocomplete="on" enctype="multipart/form-data" novalidate>
+
+      <!-- Ordem solicitada: Nome, Telefone, Email, Data de vencimento, Forma de pagamento, Plano, Upload frente/verso -->
+      <div class="row">
+        <div>
+          <label for="name">Seu nome *</label>
+          <input id="name" name="name" type="text" required placeholder="Ex: João da Silva">
+        </div>
+        <div>
+          <label for="phone">Telefone *</label>
+          <input id="phone" name="phone" type="tel" required placeholder="(xx) 9xxxx-xxxx" inputmode="tel">
+        </div>
+      </div>
+
+      <div>
+        <label for="email">Email *</label>
+        <input id="email" name="email" type="email" required placeholder="seu.email@exemplo.com">
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="dueDay">Data de vencimento da fatura *</label>
+          <select id="dueDay" name="dueDay" required>
+            <option value="" disabled selected>Escolha o dia</option>
+            <option value="07">07</option>
+            <option value="08">08</option>
+            <option value="09">09</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div>
+          <label for="payment">Forma de pagamento *</label>
+          <select id="payment" name="payment" required>
+            <option value="" disabled selected>Escolha uma opção</option>
+            <option value="debito_santander">Débito automático — Banco Santander</option>
+            <option value="recorrencia_cartao">Recorrência no cartão de crédito (R$10,00 de desconto)</option>
+            <option value="boleto">Boleto bancário</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="plan">Plano escolhido *</label>
+        <select id="plan" name="plan" required>
+          <option value="" disabled selected>Escolha um plano</option>
+          <option>Plano Age Basic</option>
+          <option>Plano Age Connect+</option>
+          <option>Plano Age Music</option>
+          <option>Plano Age Saúde</option>
+          <option>Plano Age HBO Max</option>
+          <option>Plano Age GloboPlay</option>
+          <option>Plano Age Disney</option>
+          <option>Plano Age Prime Video</option>
+          <option>Plano Age Gamer</option>
+          <option>Plano Age Home Office</option>
+          <option>Plano Age Black Signature</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="docFront">Upload — Frente do documento (RG/CPF) *</label>
+          <input id="docFront" name="docFront" type="file" accept="image/*,application/pdf" required>
+          <small class="hint">JPEG/PNG/PDF. Foto nítida, texto legível.</small>
+        </div>
+        <div>
+          <label for="docBack">Upload — Verso do documento (se houver) *</label>
+          <input id="docBack" name="docBack" type="file" accept="image/*,application/pdf" required>
+          <small class="hint">Obrigatório. Caso não haja verso, envie uma foto do verso em branco ao lado do documento.</small>
+        </div>
+      </div>
+
+      <div>
+        <label for="condominio">Condomínio / Endereço com CEP</label>
+        <input id="condominio" name="condominio" type="text" placeholder="Ex: Residencial Asa Norte">
+      </div>
+
+      <div class="actions">
+        <button type="submit" id="submitBtn">Enviar inscrição</button>
+        <button type="button" class="secondary" id="clearBtn">Limpar</button>
+      </div>
+
+      <div id="message" aria-live="polite"></div>
+
+      <div class="footnote">* Consultar disponibilidade por endereço. Valores válidos enquanto durarem as promoções.</div>
+    </form>
+  </main>
+
+  <footer class="site-footer">© <span id="footer-year"></span> Age Fibra</footer>
+
+  <!-- WhatsApp floating contact button -->
+  <div id="waFloat" class="wa-float" role="button" aria-label="Entrar em contato pelo WhatsApp" tabindex="0" data-phone="+5561920052498">
+    <svg class="wa-whatsapp" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20.52 3.48A11.94 11.94 0 0 0 12 0C5.373 0 .004 5.372.004 12.006c0 2.113.553 4.177 1.603 6.002L0 24l6.223-1.607A11.94 11.94 0 0 0 12 24c6.628 0 12-5.372 12-11.994 0-3.206-1.254-6.217-3.48-8.526z" fill="white" opacity="0.08"/>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.1-.472-.149-.672.15-.198.297-.768.967-.942 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.786-1.48-1.754-1.653-2.051-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.148-.672-1.612-.92-2.206-.242-.579-.487-.5-.672-.51l-.573-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.148.198 2.095 3.2 5.076 4.487 0 0 .346.15.624.075.273-.074 1.758-.72 2.005-1.415.248-.694.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z" fill="#25D366"/>
+      <path d="M12 2.4c-5.307 0-9.6 4.293-9.6 9.6 0 1.686.43 3.284 1.243 4.688L3.6 22l5.349-1.382A9.57 9.57 0 0 0 12 21.6c5.307 0 9.6-4.293 9.6-9.6S17.307 2.4 12 2.4z" fill="white" opacity="0.02"/>
+    </svg>
+    <span class="wa-label">WhatsApp</span>
+    <svg class="wa-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 5l8 7-8 7V5z" fill="white"/>
+    </svg>
+  </div>
+
+  <script>
+    // Configuração do formulário — mantém o endpoint Apps Script que você já usava
+    const form = document.getElementById('interestForm');
+    const message = document.getElementById('message');
+    const clearBtn = document.getElementById('clearBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // troque para o seu endpoint Apps Script (mantive o que você já tinha)
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyRVuwu4tGH-M2Xsau9JS56OqUwyRj-KeoeCNeaO8SdahEVINM_UzxjP6vXLf8CiAzL/exec";
+
+    function setMessage(html, isError=false){
+      message.innerHTML = `<div class="result ${isError? 'error':''}">${html}</div>`;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // validação simples client-side para arquivos obrigatórios
+      const front = document.getElementById('docFront');
+      const back = document.getElementById('docBack');
+      if(!front.files.length || !back.files.length){
+        setMessage('❌ Envie as fotos frente e verso do documento.', true);
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      setMessage('Enviando...');
+
+      const data = new FormData(form);
+
+      fetch(scriptURL, { method: 'POST', body: data })
+        .then(response => { if(!response.ok) throw new Error('Erro na resposta'); return response.text(); })
+        .then(() => {
+          setMessage('✅ Dados enviados com sucesso!');
+          form.reset();
+        })
+        .catch((err) => {
+          console.error(err);
+          setMessage('❌ Ocorreu um erro ao enviar. Tente novamente.', true);
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Enviar inscrição';
+        });
+    });
+
+    clearBtn.addEventListener('click', () => { form.reset(); message.innerHTML = ''; });
+
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // WhatsApp floating behaviour (acessível e colapsável em telas pequenas)
+    (function(){
+      const wa = document.getElementById('waFloat');
+      const phone = wa.getAttribute('data-phone') || '+5561920052498';
+      const waUrl = (p) => `https://wa.me/${p.replace(/[^0-9]/g,'')}`;
+      let inactivityTimer = null; const INACTIVITY_MS = 3000;
+      function collapse(){ wa.classList.add('collapsed'); }
+      function expand(){ wa.classList.remove('collapsed'); }
+      function resetTimer(){ if(inactivityTimer) clearTimeout(inactivityTimer); inactivityTimer = setTimeout(()=> collapse(), INACTIVITY_MS); }
+      resetTimer();
+      ['pointerenter','focus','touchstart','click','mousemove'].forEach(ev => { wa.addEventListener(ev, (e)=>{ expand(); resetTimer(); }); });
+      wa.addEventListener('click', (e)=>{ e.preventDefault(); if(wa.classList.contains('collapsed')){ expand(); resetTimer(); return; } window.open(waUrl(phone),'_blank'); });
+      wa.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); wa.click(); } });
+      ['mousemove','touchstart','scroll','keydown'].forEach(ev => { document.addEventListener(ev, ()=>{ resetTimer(); }, {passive:true}); });
+      if(window.innerWidth <= 560) collapse();
+      window._waFloat = { expand, collapse };
+    })();
+  </script>
+</body>
+</html>
