@@ -191,20 +191,48 @@
     const clearBtn = document.getElementById('clearBtn');
     const submitBtn = document.getElementById('submitBtn');
 
-    // troque para o seu endpoint Apps Script (mantive o que você já tinha)
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyRVuwu4tGH-M2Xsau9JS56OqUwyRj-KeoeCNeaO8SdahEVINM_UzxjP6vXLf8CiAzL/exec";
+    // troque para o seu endpoint Apps Script (depois de publicar/atualizar implantação)
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyRVuwu4tGH-M2Xsau9JS56OqUwyRj-KeoeCNeaO8SdahEVINM_UzxjP6vXLf8CiAzL/exec"; // substitua se necessário
 
     function setMessage(html, isError=false){
       message.innerHTML = `<div class="result ${isError? 'error':''}">${html}</div>`;
     }
 
-    form.addEventListener('submit', (e) => {
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result; // data:<type>;base64,AAAA
+          const base64 = result.split(',')[1];
+          resolve({ base64, name: file.name, type: file.type || 'application/octet-stream' });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // validação simples client-side para arquivos obrigatórios
-      const front = document.getElementById('docFront');
-      const back = document.getElementById('docBack');
-      if(!front.files.length || !back.files.length){
+      // pega campos do formulário (mapeando nomes para o script)
+      const nome = document.getElementById('name').value.trim();
+      const telefone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const vencimento = document.getElementById('dueDay').value;
+      const pagamento = document.getElementById('payment').value;
+      const plano = document.getElementById('plan').value;
+      const endereco = document.getElementById('condominio').value || "";
+
+      const frontInput = document.getElementById('docFront');
+      const backInput = document.getElementById('docBack');
+
+      if (!nome || !telefone || !email || !vencimento || !pagamento || !plano) {
+        setMessage('❌ Preencha os campos obrigatórios.', true);
+        return;
+      }
+
+      if (!frontInput.files.length || !backInput.files.length) {
         setMessage('❌ Envie as fotos frente e verso do documento.', true);
         return;
       }
@@ -213,22 +241,44 @@
       submitBtn.textContent = 'Enviando...';
       setMessage('Enviando...');
 
-      const data = new FormData(form);
+      try {
+        // converte arquivos
+        const frontFile = await fileToBase64(frontInput.files[0]);
+        const backFile = await fileToBase64(backInput.files[0]);
 
-      fetch(scriptURL, { method: 'POST', body: data })
-        .then(response => { if(!response.ok) throw new Error('Erro na resposta'); return response.text(); })
-        .then(() => {
+        const payload = {
+          nome,
+          telefone,
+          email,
+          vencimento,
+          pagamento,
+          plano,
+          endereco,
+          frente: frontFile,
+          verso: backFile
+        };
+
+        const resp = await fetch(scriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const json = await resp.json();
+        if (resp.ok && (json.status === "OK" || json.status === "ok")) {
           setMessage('✅ Dados enviados com sucesso!');
           form.reset();
-        })
-        .catch((err) => {
-          console.error(err);
-          setMessage('❌ Ocorreu um erro ao enviar. Tente novamente.', true);
-        })
-        .finally(() => {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Enviar inscrição';
-        });
+        } else {
+          console.error('Resposta do servidor:', json);
+          setMessage('❌ Ocorreu um erro no servidor. Veja o console.', true);
+        }
+      } catch (err) {
+        console.error(err);
+        setMessage('❌ Erro ao enviar. Verifique a conexão ou veja os logs do Apps Script.', true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar inscrição';
+      }
     });
 
     clearBtn.addEventListener('click', () => { form.reset(); message.innerHTML = ''; });
