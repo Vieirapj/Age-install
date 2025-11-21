@@ -185,14 +185,14 @@
   </div>
 
   <script>
-    // Configuração do formulário — mantém o endpoint Apps Script que você já usava
+    // Configuração do formulário — mantém o endpoint Apps Script que você forneceu
     const form = document.getElementById('interestForm');
     const message = document.getElementById('message');
     const clearBtn = document.getElementById('clearBtn');
     const submitBtn = document.getElementById('submitBtn');
 
-    // troque para o seu endpoint Apps Script (depois de publicar/atualizar implantação)
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxh0RpQPw5Kkdk8UjaTkcwhhqYpvbs3H2t8DttGozMwlDgQuamm4TDbs00pkdgCY0wU/exec"; // substitua se necessário
+    // URL do seu WebApp (conforme você enviou)
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwt2mMlJZUt45h-gWM_zT7p6JvUU13aqbDTTLgsMBE0dTnuqdk6lmB7kYtviRYtSj4v/exec";
 
     function setMessage(html, isError=false){
       message.innerHTML = `<div class="result ${isError? 'error':''}">${html}</div>`;
@@ -258,19 +258,28 @@
           verso: backFile
         };
 
+        // importantíssimo: NÃO definir headers. isso evita preflight (CORS)
         const resp = await fetch(scriptURL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
-        const json = await resp.json();
-        if (resp.ok && (json.status === "OK" || json.status === "ok")) {
+        // ler e logar a resposta (útil para depuração)
+        const text = await resp.text();
+        console.log('HTTP', resp.status, resp.statusText);
+        console.log('Response body:', text);
+
+        let json = null;
+        try { json = JSON.parse(text); } catch (err) { /* resposta não JSON */ }
+
+        if (!resp.ok) {
+          setMessage(`❌ Erro HTTP ${resp.status}. Veja o console.`, true);
+        } else if (!json || !(json.status === "OK" || json.status === "ok")) {
+          console.error('Resposta do servidor (JSON):', json);
+          setMessage('❌ Ocorreu um erro no servidor. Verifique os logs do Apps Script.', true);
+        } else {
           setMessage('✅ Dados enviados com sucesso!');
           form.reset();
-        } else {
-          console.error('Resposta do servidor:', json);
-          setMessage('❌ Ocorreu um erro no servidor. Veja o console.', true);
         }
       } catch (err) {
         console.error(err);
@@ -305,4 +314,3 @@
   </script>
 </body>
 </html>
-
